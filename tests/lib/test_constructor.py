@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import yaml
 import pprint
@@ -14,7 +15,7 @@ def execute(code):
     return value
 
 def _make_objects():
-    global MyLoader, MyDumper, MyTestClass1, MyTestClass2, MyTestClass3, YAMLObject1, YAMLObject2,  \
+    global MyLoader, MyDumper, MyTestClass1, MyTestClass2, MyTestClass3, MyTestClass4, YAMLObject1, YAMLObject2,  \
             AnObject, AnInstance, AState, ACustomState, InitArgs, InitArgsWithState,    \
             NewArgs, NewArgsWithState, Reduce, ReduceWithState, MyInt, MyList, MyDict,  \
             FixedOffset, today, execute
@@ -69,6 +70,9 @@ def _make_objects():
         def to_yaml(cls, representer, native):
             return representer.represent_mapping(cls.yaml_tag, native.__dict__)
         to_yaml = classmethod(to_yaml)
+
+    class MyTestClass4(MyTestClass3):
+        yaml_tag = u"!тег4"
 
     class YAMLObject1(yaml.YAMLObject):
         yaml_loader = MyLoader

@@ -21,6 +21,10 @@
   =: 1
   'y': 2
   z: 3
+- !%D1%82%D0%B5%D0%B34
+  =: 1
+  'y': 2
+  z: 3
 - !foo
   my-parameter: foo
   my-another-parameter: [1,2,3]
