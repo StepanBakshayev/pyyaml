@@ -5,6 +5,7 @@
 # node ::= SCALAR | sequence | mapping
 # sequence ::= SEQUENCE-START node* SEQUENCE-END
 # mapping ::= MAPPING-START (node node)* MAPPING-END
+from urllib.parse import quote
 
 __all__ = ['Emitter', 'EmitterError']
 
@@ -557,25 +558,7 @@ class Emitter:
     def prepare_tag_prefix(self, prefix):
         if not prefix:
             raise EmitterError("tag prefix must not be empty")
-        chunks = []
-        start = end = 0
-        if prefix[0] == '!':
-            end = 1
-        while end < len(prefix):
-            ch = prefix[end]
-            if '0' <= ch <= '9' or 'A' <= ch <= 'Z' or 'a' <= ch <= 'z' \
-                    or ch in '-;/?!:@&=+$,_.~*\'()[]':
-                end += 1
-            else:
-                if start < end:
-                    chunks.append(prefix[start:end])
-                start = end = end+1
-                data = ch.encode('utf-8')
-                for ch in data:
-                    chunks.append('%%%02X' % ord(ch))
-        if start < end:
-            chunks.append(prefix[start:end])
-        return ''.join(chunks)
+        return quote(prefix, safe='-;/?!:@&=+$,_.~*\'()[]')
 
     def prepare_tag(self, tag):
         if not tag:
@@ -590,24 +573,7 @@ class Emitter:
                     and (prefix == '!' or len(prefix) < len(tag)):
                 handle = self.tag_prefixes[prefix]
                 suffix = tag[len(prefix):]
-        chunks = []
-        start = end = 0
-        while end < len(suffix):
-            ch = suffix[end]
-            if '0' <= ch <= '9' or 'A' <= ch <= 'Z' or 'a' <= ch <= 'z' \
-                    or ch in '-;/?:@&=+$,_.~*\'()[]'   \
-                    or (ch == '!' and handle != '!'):
-                end += 1
-            else:
-                if start < end:
-                    chunks.append(suffix[start:end])
-                start = end = end+1
-                data = ch.encode('utf-8')
-                for ch in data:
-                    chunks.append('%%%02X' % ord(ch))
-        if start < end:
-            chunks.append(suffix[start:end])
-        suffix_text = ''.join(chunks)
+        suffix_text = quote(suffix, safe='-;/?:@&=+$,_.~*\'()[]'+('!' if handle!='!' else ''))
         if handle:
             return '%s%s' % (handle, suffix_text)
         else:
